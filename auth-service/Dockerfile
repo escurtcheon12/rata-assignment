@@ -15,8 +15,8 @@ COPY auth-service/ ./auth-service/
 COPY package.json pnpm-workspace.yaml .npmrc ./
 WORKDIR /app/auth-service
 RUN npx prisma generate
+RUN rm -rf dist && rm -f *.tsbuildinfo tsconfig*.tsbuildinfo
 RUN ./node_modules/.bin/nest build
-RUN test -f /app/auth-service/dist/main.js || (echo "BUILD FAILED: dist/main.js not found, listing dist:" && find /app/auth-service/dist -type f && exit 1)
 
 FROM node:22-alpine AS runner
 ENV NODE_ENV=production
@@ -30,4 +30,4 @@ COPY --from=builder /app/auth-service/src/common/thirdparties/prisma ./auth-serv
 
 WORKDIR /app/auth-service
 EXPOSE 3001
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
