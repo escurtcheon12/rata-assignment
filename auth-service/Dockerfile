@@ -19,11 +19,14 @@ RUN ./node_modules/.bin/nest build
 RUN test -f /app/auth-service/dist/main.js || (echo "BUILD FAILED: dist/main.js not found, listing dist:" && find /app/auth-service/dist -type f && exit 1)
 
 FROM node:22-alpine AS runner
-WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=builder /app/auth-service/dist ./dist
-COPY --from=builder /app/auth-service/node_modules ./node_modules
-COPY --from=builder /app/auth-service/package.json ./package.json
+WORKDIR /app
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/auth-service/node_modules ./auth-service/node_modules
+COPY --from=builder /app/auth-service/dist ./auth-service/dist
+COPY --from=builder /app/auth-service/package.json ./auth-service/package.json
+COPY --from=builder /app/auth-service/prisma.config.ts ./auth-service/prisma.config.ts
+COPY --from=builder /app/auth-service/src/common/thirdparties/prisma ./auth-service/src/common/thirdparties/prisma
 
 WORKDIR /app/auth-service
 EXPOSE 3001

@@ -1,8 +1,65 @@
-# GraphQL API Reference
+# Rata
 
-Base URL: `http://localhost:3000/graphql`
+Monorepo with two NestJS GraphQL services:
 
-All requests are `POST` to the single GraphQL endpoint.
+- Auth Service: `http://localhost:3001/graphql`
+- Schedule Service: `http://localhost:3002/graphql`
+
+## Getting Started
+
+### Docker (Recommended)
+
+```bash
+docker compose up -d --build
+```
+
+Initialize Postgres (first run only):
+
+```bash
+docker compose exec -T postgres psql -U postgres -d rata -c "CREATE EXTENSION IF NOT EXISTS pgcrypto;"
+docker compose exec -T auth-service sh -lc "npx prisma db push --accept-data-loss --config prisma.config.ts"
+docker compose exec -T schedule-service sh -lc "npx prisma db push --accept-data-loss --config prisma.config.ts"
+docker compose restart auth-service schedule-service
+```
+
+Useful commands:
+
+```bash
+docker compose ps
+docker compose logs -f auth-service schedule-service
+docker compose down
+```
+
+### Manual (Local Node.js)
+
+Prereqs: Node.js 22+, pnpm 11+, Postgres 16+, Redis 7+.
+
+Start Postgres + Redis (using Docker):
+
+```bash
+docker compose up -d postgres redis
+```
+
+Install dependencies and run Prisma schema sync per service:
+
+```bash
+pnpm install
+cd auth-service
+npx prisma db push --accept-data-loss --config prisma.config.ts
+pnpm run start:dev
+```
+
+In another terminal:
+
+```bash
+cd schedule-service
+npx prisma db push --accept-data-loss --config prisma.config.ts
+pnpm run start:dev
+```
+
+## GraphQL API Reference
+
+All requests are `POST` to the GraphQL endpoint for the service you are calling.
 
 ---
 
@@ -34,19 +91,16 @@ mutation Login {
 
 ### Register
 
-Creates a new user account and returns an access token.
+Creates a new user account.
 
 ```graphql
 mutation Register {
   register(input: { email: "test@example.com", password: "password123" }) {
     message
     result {
-      accessToken
-      user {
-        id
-        email
-        createdAt
-      }
+      id
+      email
+      createdAt
     }
   }
 }
@@ -78,7 +132,7 @@ query ValidateToken {
 | Field     | Type          | Description        |
 | --------- | ------------- | ------------------ |
 | `message` | `String`      | Operation message  |
-| `data`    | `AuthDataDto` | Auth response data |
+| `result`  | `AuthDataDto` | Auth response data |
 
 ### `AuthDataDto`
 
@@ -141,12 +195,11 @@ mutation UpdateCustomer {
 ```graphql
 mutation DeleteCustomer {
   deleteCustomer(id: "uuid-here") {
-    message
-    result {
-      id
-      name
-      email
-    }
+    id
+    name
+    email
+    createdAt
+    updatedAt
   }
 }
 ```
@@ -160,7 +213,7 @@ query GetCustomers {
   customers(pagination: { page: "1", pageSize: "10" }) {
     message
     result {
-      records {
+      data {
         id
         name
         email

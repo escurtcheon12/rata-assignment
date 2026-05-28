@@ -19,11 +19,14 @@ RUN ./node_modules/.bin/nest build
 RUN test -f /app/schedule-service/dist/main.js || (echo "BUILD FAILED: dist/main.js not found, listing dist:" && find /app/schedule-service/dist -type f && exit 1)
 
 FROM node:22-alpine AS runner
-WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=builder /app/schedule-service/dist ./dist
-COPY --from=builder /app/schedule-service/node_modules ./node_modules
-COPY --from=builder /app/schedule-service/package.json ./package.json
+WORKDIR /app
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/schedule-service/node_modules ./schedule-service/node_modules
+COPY --from=builder /app/schedule-service/dist ./schedule-service/dist
+COPY --from=builder /app/schedule-service/package.json ./schedule-service/package.json
+COPY --from=builder /app/schedule-service/prisma.config.ts ./schedule-service/prisma.config.ts
+COPY --from=builder /app/schedule-service/src/common/thirdparties/prisma ./schedule-service/src/common/thirdparties/prisma
 
 WORKDIR /app/schedule-service
 EXPOSE 3002

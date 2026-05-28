@@ -84,13 +84,10 @@ export class AuthService implements IAuthService {
   async login(email: string, password: string): Promise<AuthDataDto> {
     // Find user
     const user = await this.getUserByEmail(email);
-    if (!user) {
-      throw new UnauthorizedException('Email not registered');
-    }
 
     // Verify password
     const hashedPassword = bcrypt.SHA256(password).toString();
-    if (user.password !== hashedPassword) {
+    if (!user || user.password !== hashedPassword) {
       throw new UnauthorizedException('Password is incorrect');
     }
 
