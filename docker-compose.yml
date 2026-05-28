@@ -4,7 +4,7 @@ services:
     container_name: rata-postgres
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD:
+      POSTGRES_PASSWORD: kaneki123
       POSTGRES_DB: rata
     ports:
       - "5433:5432"
@@ -41,7 +41,7 @@ services:
       DB_PORT: 5432
       DB_NAME: rata
       DB_USERNAME: postgres
-      DB_PASSWORD:
+      DB_PASSWORD: kaneki123
       DB_DRIVER: postgres
       JWT_SECRET: rata-key
       JWT_EXPIRED: 1d
@@ -80,8 +80,8 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ""
-      EMAIL_USER:
-      EMAIL_PASSWORD:
+      EMAIL_USER: rizkysyahroni200@gmail.com
+      EMAIL_PASSWORD: snbb oemn nxya uzne
     ports:
       - "3002:3002"
     depends_on:
