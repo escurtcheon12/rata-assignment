@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
+import { ResponseWrapperInterceptor } from './common/interceptors';
 
 async function bootstrap() {
   //--- Setup Server ---//
@@ -13,6 +14,7 @@ async function bootstrap() {
     credentials: false,
   });
   app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalInterceptors(new ResponseWrapperInterceptor());
 
   console.log('GraphQL Endpoints Registered:');
 

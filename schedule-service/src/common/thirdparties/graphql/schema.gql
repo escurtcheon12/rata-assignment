@@ -1,0 +1,65 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input CreateCustomerDto {
+  email: String!
+  name: String!
+}
+
+type CreateCustomerResponseDto {
+  message: String!
+  result: CustomerDto!
+}
+
+type CustomerDto {
+  createdAt: DateTime!
+  email: String!
+  id: String!
+  name: String!
+  updatedAt: DateTime
+}
+
+type CustomerListDto {
+  data: [CustomerDto!]!
+  page: Float!
+  pageSize: Float!
+  totalPages: Float!
+  totalRecords: Float!
+}
+
+type CustomerListResponseDto {
+  message: String!
+  result: CustomerListDto!
+}
+
+input CustomerPaginationDto {
+  page: String
+  pageSize: String
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Mutation {
+  createCustomer(input: CreateCustomerDto!): CreateCustomerResponseDto!
+  deleteCustomer(id: String!): CustomerDto!
+  updateCustomer(id: String!, input: UpdateCustomerDto!): UpdateCustomerResponseDto!
+}
+
+type Query {
+  customer(id: String!): CustomerDto!
+  customers(pagination: CustomerPaginationDto!): CustomerListResponseDto!
+}
+
+input UpdateCustomerDto {
+  email: String
+  name: String
+}
+
+type UpdateCustomerResponseDto {
+  message: String!
+  result: CustomerDto!
+}

@@ -2,9 +2,14 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type AuthResponseDto {
+type AuthDataDto {
   accessToken: String!
   user: User!
+}
+
+type AuthResponseDto {
+  message: String!
+  result: AuthDataDto!
 }
 
 """
@@ -19,11 +24,17 @@ input LoginRequestDto {
 
 type Mutation {
   login(input: LoginRequestDto!): AuthResponseDto!
-  register(input: RegisterRequestDto!): AuthResponseDto!
+  register(input: RegisterRequestDto!): RegisterResponseDto!
 }
 
 type Query {
-  validateToken(token: String!): User!
+  validateToken(token: String!): ValidateTokenResponseDto!
+}
+
+type RegisterDataDto {
+  createdAt: DateTime!
+  email: String!
+  id: String!
 }
 
 input RegisterRequestDto {
@@ -31,8 +42,18 @@ input RegisterRequestDto {
   password: String!
 }
 
+type RegisterResponseDto {
+  message: String!
+  result: RegisterDataDto!
+}
+
 type User {
   createdAt: DateTime!
   email: String!
   id: String!
+}
+
+type ValidateTokenResponseDto {
+  message: String!
+  result: User!
 }
