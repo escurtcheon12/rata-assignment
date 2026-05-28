@@ -1,65 +1,50 @@
-import {
-  Inject,
-  Injectable,
-  NotFoundException,
-  ConflictException,
-} from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { IDoctorRepository } from '../repositories/doctor.repository.interface';
 import { IDoctorService } from './doctor.service.interface';
 import {
-  CustomerDto,
-  CustomerListDto,
+  DoctorDto,
+  DoctorListDto,
 } from '../dtos/responses/doctor.response.dto';
 
 @Injectable()
 export class DoctorService implements IDoctorService {
   constructor(
     @Inject(IDoctorRepository)
-    private readonly customerRepository: IDoctorRepository,
+    private readonly doctorRepository: IDoctorRepository,
   ) {}
 
-  private toCustomerDto(customer: any): CustomerDto {
+  private toDoctorDto(doctor: any): DoctorDto {
     return {
-      id: customer.id,
-      name: customer.name,
-      email: customer.email,
-      createdAt: customer.createdAt,
-      updatedAt: customer.updatedAt,
+      id: doctor.id,
+      name: doctor.name,
+      createdAt: doctor.createdAt,
+      updatedAt: doctor.updatedAt,
     };
   }
 
-  async createCustomer(data: {
-    name: string;
-    email: string;
-  }): Promise<CustomerDto> {
-    const existingCustomer = await this.customerRepository.findByEmail(
-      data.email,
-    );
-    if (existingCustomer) {
-      throw new ConflictException('Customer with this email already exists');
-    }
-    const customer = await this.customerRepository.create(data);
-    return this.toCustomerDto(customer);
+  async createDoctor(data: { name: string }): Promise<DoctorDto> {
+    const doctor = await this.doctorRepository.create(data);
+    return this.toDoctorDto(doctor);
   }
 
-  async getCustomerById(id: string): Promise<CustomerDto> {
-    const customer = await this.customerRepository.findById(id);
-    if (!customer) {
-      throw new NotFoundException(`Customer with ID ${id} not found`);
+  async getDoctorById(id: string): Promise<DoctorDto> {
+    const doctor = await this.doctorRepository.findById(id);
+    if (!doctor) {
+      throw new NotFoundException(`Doctor with ID ${id} not found`);
     }
-    return this.toCustomerDto(customer);
+    return this.toDoctorDto(doctor);
   }
 
-  async getCustomers(
+  async getDoctors(
     page: number = 1,
     pageSize: number = 10,
-  ): Promise<CustomerListDto> {
-    const { customers, total } = await this.customerRepository.findAll(
+  ): Promise<DoctorListDto> {
+    const { doctors, total } = await this.doctorRepository.findAll(
       page,
       pageSize,
     );
     return {
-      data: customers.map((c) => this.toCustomerDto(c)),
+      data: doctors.map((d) => this.toDoctorDto(d)),
       totalRecords: total,
       page,
       pageSize,
@@ -67,32 +52,21 @@ export class DoctorService implements IDoctorService {
     };
   }
 
-  async updateCustomer(
-    id: string,
-    data: { name?: string; email?: string },
-  ): Promise<CustomerDto> {
-    const existingCustomer = await this.customerRepository.findById(id);
-    if (!existingCustomer) {
-      throw new NotFoundException(`Customer with ID ${id} not found`);
+  async updateDoctor(id: string, data: { name?: string }): Promise<DoctorDto> {
+    const existingDoctor = await this.doctorRepository.findById(id);
+    if (!existingDoctor) {
+      throw new NotFoundException(`Doctor with ID ${id} not found`);
     }
-    if (data.email && data.email !== existingCustomer.email) {
-      const customerWithEmail = await this.customerRepository.findByEmail(
-        data.email,
-      );
-      if (customerWithEmail) {
-        throw new ConflictException('Customer with this email already exists');
-      }
-    }
-    const customer = await this.customerRepository.update(id, data);
-    return this.toCustomerDto(customer);
+    const doctor = await this.doctorRepository.update(id, data);
+    return this.toDoctorDto(doctor);
   }
 
-  async deleteCustomer(id: string): Promise<CustomerDto> {
-    const customer = await this.customerRepository.findById(id);
-    if (!customer) {
-      throw new NotFoundException(`Customer with ID ${id} not found`);
+  async deleteDoctor(id: string): Promise<DoctorDto> {
+    const doctor = await this.doctorRepository.findById(id);
+    if (!doctor) {
+      throw new NotFoundException(`Doctor with ID ${id} not found`);
     }
-    const deleted = await this.customerRepository.delete(id);
-    return this.toCustomerDto(deleted);
+    const deleted = await this.doctorRepository.delete(id);
+    return this.toDoctorDto(deleted);
   }
 }

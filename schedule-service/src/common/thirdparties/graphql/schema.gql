@@ -12,6 +12,27 @@ type CreateCustomerResponseDto {
   result: CustomerDto!
 }
 
+input CreateDoctorDto {
+  name: String!
+}
+
+type CreateDoctorResponseDto {
+  message: String!
+  result: DoctorDto!
+}
+
+input CreateScheduleDto {
+  customerId: String!
+  doctorId: String!
+  objective: String!
+  scheduledAt: String!
+}
+
+type CreateScheduleResponseDto {
+  message: String!
+  result: ScheduleDto!
+}
+
 type CustomerDto {
   createdAt: DateTime!
   email: String!
@@ -43,15 +64,95 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type DoctorDto {
+  createdAt: DateTime!
+  id: String!
+  name: String!
+  updatedAt: DateTime
+}
+
+type DoctorListDto {
+  data: [DoctorDto!]!
+  page: Float!
+  pageSize: Float!
+  totalPages: Float!
+  totalRecords: Float!
+}
+
+type DoctorListResponseDto {
+  message: String!
+  result: DoctorListDto!
+}
+
+input DoctorPaginationDto {
+  page: String
+  pageSize: String
+}
+
+type DoctorResponseDto {
+  message: String!
+  result: DoctorDto!
+}
+
 type Mutation {
   createCustomer(input: CreateCustomerDto!): CreateCustomerResponseDto!
+  createDoctor(input: CreateDoctorDto!): CreateDoctorResponseDto!
+  createSchedule(input: CreateScheduleDto!): CreateScheduleResponseDto!
   deleteCustomer(id: String!): CustomerDto!
+  deleteDoctor(id: String!): DoctorResponseDto!
+  deleteSchedule(id: String!): ScheduleResponseDto!
   updateCustomer(id: String!, input: UpdateCustomerDto!): UpdateCustomerResponseDto!
+  updateDoctor(id: String!, input: UpdateDoctorDto!): UpdateDoctorResponseDto!
 }
 
 type Query {
   customer(id: String!): CustomerDto!
   customers(pagination: CustomerPaginationDto!): CustomerListResponseDto!
+  doctor(id: String!): DoctorResponseDto!
+  doctors(pagination: DoctorPaginationDto!): DoctorListResponseDto!
+  schedule(id: String!): ScheduleResponseDto!
+  schedules(pagination: SchedulePaginationDto!): ScheduleListResponseDto!
+}
+
+type ScheduleDto {
+  createdAt: DateTime!
+  customerId: String!
+  doctorId: String!
+  id: String!
+  objective: String!
+  scheduledAt: DateTime!
+  updatedAt: DateTime
+}
+
+input ScheduleFilterDto {
+  customerId: String
+  doctorId: String
+  scheduledFrom: String
+  scheduledTo: String
+}
+
+type ScheduleListDto {
+  data: [ScheduleDto!]!
+  page: Float!
+  pageSize: Float!
+  totalPages: Float!
+  totalRecords: Float!
+}
+
+type ScheduleListResponseDto {
+  message: String!
+  result: ScheduleListDto!
+}
+
+input SchedulePaginationDto {
+  filter: ScheduleFilterDto
+  page: String
+  pageSize: String
+}
+
+type ScheduleResponseDto {
+  message: String!
+  result: ScheduleDto!
 }
 
 input UpdateCustomerDto {
@@ -62,4 +163,13 @@ input UpdateCustomerDto {
 type UpdateCustomerResponseDto {
   message: String!
   result: CustomerDto!
+}
+
+input UpdateDoctorDto {
+  name: String
+}
+
+type UpdateDoctorResponseDto {
+  message: String!
+  result: DoctorDto!
 }

@@ -20,7 +20,7 @@ Authenticates an existing user and returns an access token.
 mutation Login {
   login(input: { email: "test@example.com", password: "password123" }) {
     message
-    data {
+    result {
       accessToken
       user {
         id
@@ -40,7 +40,7 @@ Creates a new user account and returns an access token.
 mutation Register {
   register(input: { email: "test@example.com", password: "password123" }) {
     message
-    data {
+    result {
       accessToken
       user {
         id
@@ -111,7 +111,7 @@ query ValidateToken {
 mutation CreateCustomer {
   createCustomer(input: { name: "John Doe", email: "john@example.com" }) {
     message
-    data {
+    result {
       id
       name
       email
@@ -127,7 +127,7 @@ mutation CreateCustomer {
 mutation UpdateCustomer {
   updateCustomer(id: "uuid-here", input: { name: "Jane Doe" }) {
     message
-    data {
+    result {
       id
       name
       email
@@ -142,7 +142,7 @@ mutation UpdateCustomer {
 mutation DeleteCustomer {
   deleteCustomer(id: "uuid-here") {
     message
-    data {
+    result {
       id
       name
       email
@@ -159,7 +159,7 @@ mutation DeleteCustomer {
 query GetCustomers {
   customers(pagination: { page: "1", pageSize: "10" }) {
     message
-    data {
+    result {
       records {
         id
         name
@@ -181,7 +181,7 @@ query GetCustomers {
 query GetCustomer {
   customer(id: "uuid-here") {
     message
-    data {
+    result {
       id
       name
       email
@@ -210,6 +210,267 @@ query GetCustomer {
 | `email`     | `String`   | Customer email address     |
 | `createdAt` | `DateTime` | Record creation timestamp  |
 | `updatedAt` | `DateTime` | Record updated timestamp   |
+
+---
+
+## Doctor Module
+
+### Mutations
+
+#### Create Doctor
+
+```graphql
+mutation CreateDoctor {
+  createDoctor(input: { name: "Dr. Smith" }) {
+    message
+    result {
+      id
+      name
+      createdAt
+    }
+  }
+}
+```
+
+#### Update Doctor
+
+```graphql
+mutation UpdateDoctor {
+  updateDoctor(id: "uuid-here", input: { name: "Dr. Johnson" }) {
+    message
+    result {
+      id
+      name
+    }
+  }
+}
+```
+
+#### Delete Doctor
+
+```graphql
+mutation DeleteDoctor {
+  deleteDoctor(id: "uuid-here") {
+    message
+    result {
+      id
+      name
+    }
+  }
+}
+```
+
+### Queries
+
+#### Get All Doctors
+
+```graphql
+query GetDoctors {
+  doctors(pagination: { page: "1", pageSize: "10" }) {
+    message
+    result {
+      data {
+        id
+        name
+        createdAt
+      }
+      totalRecords
+      page
+      pageSize
+      totalPages
+    }
+  }
+}
+```
+
+#### Get Doctor by ID
+
+```graphql
+query GetDoctor {
+  doctor(id: "uuid-here") {
+    message
+    result {
+      id
+      name
+      createdAt
+      updatedAt
+    }
+  }
+}
+```
+
+## Response Types
+
+### `DoctorResponseDto`
+
+| Field     | Type        | Description       |
+| --------- | ----------- | ----------------- |
+| `message` | `String`    | Operation message |
+| `result`  | `DoctorDto` | Doctor data       |
+
+### `DoctorDto`
+
+| Field       | Type       | Description               |
+| ----------- | ---------- | ------------------------- |
+| `id`        | `ID`       | Unique doctor identifier  |
+| `name`      | `String`   | Doctor name               |
+| `createdAt` | `DateTime` | Record creation timestamp |
+| `updatedAt` | `DateTime` | Record updated timestamp  |
+
+---
+
+## Schedule Module
+
+### Mutations
+
+#### Create Schedule
+
+```graphql
+mutation CreateSchedule {
+  createSchedule(
+    input: {
+      customerId: "uuid-here"
+      doctorId: "uuid-here"
+      objective: "General checkup"
+      scheduledAt: "2026-06-01T09:00:00Z"
+    }
+  ) {
+    message
+    result {
+      id
+      customerId
+      doctorId
+      objective
+      scheduledAt
+      createdAt
+    }
+  }
+}
+```
+
+#### Delete Schedule
+
+```graphql
+mutation DeleteSchedule {
+  deleteSchedule(id: "uuid-here") {
+    message
+    result {
+      id
+      customerId
+      doctorId
+      objective
+      scheduledAt
+    }
+  }
+}
+```
+
+### Queries
+
+#### Get All Schedules
+
+Supports optional filtering by `customerId`, `doctorId`, and date range.
+
+```graphql
+query GetSchedules {
+  schedules(
+    pagination: {
+      page: "1"
+      pageSize: "10"
+      filter: {
+        customerId: "uuid-here"
+        doctorId: "uuid-here"
+        scheduledFrom: "2026-06-01T00:00:00Z"
+        scheduledTo: "2026-06-30T23:59:59Z"
+      }
+    }
+  ) {
+    message
+    result {
+      data {
+        id
+        customerId
+        doctorId
+        objective
+        scheduledAt
+        createdAt
+      }
+      totalRecords
+      page
+      pageSize
+      totalPages
+    }
+  }
+}
+```
+
+#### Get Schedule by ID
+
+```graphql
+query GetSchedule {
+  schedule(id: "uuid-here") {
+    message
+    result {
+      id
+      customerId
+      doctorId
+      objective
+      scheduledAt
+      createdAt
+      updatedAt
+    }
+  }
+}
+```
+
+### Input Types
+
+#### `CreateScheduleDto`
+
+| Field         | Type     | Required | Description              |
+| ------------- | -------- | -------- | ------------------------ |
+| `customerId`  | `String` | Yes      | ID of the customer       |
+| `doctorId`    | `String` | Yes      | ID of the doctor         |
+| `objective`   | `String` | Yes      | Purpose of the schedule  |
+| `scheduledAt` | `String` | Yes      | ISO 8601 datetime string |
+
+#### `SchedulePaginationDto`
+
+| Field      | Type                | Required | Description                  |
+| ---------- | ------------------- | -------- | ---------------------------- |
+| `page`     | `String`            | No       | Page number (default: 1)     |
+| `pageSize` | `String`            | No       | Items per page (default: 10) |
+| `filter`   | `ScheduleFilterDto` | No       | Optional filters             |
+
+#### `ScheduleFilterDto`
+
+| Field           | Type     | Required | Description                    |
+| --------------- | -------- | -------- | ------------------------------ |
+| `customerId`    | `String` | No       | Filter by customer ID          |
+| `doctorId`      | `String` | No       | Filter by doctor ID            |
+| `scheduledFrom` | `String` | No       | Start of date range (ISO 8601) |
+| `scheduledTo`   | `String` | No       | End of date range (ISO 8601)   |
+
+### Response Types
+
+#### `ScheduleResponseDto`
+
+| Field     | Type          | Description       |
+| --------- | ------------- | ----------------- |
+| `message` | `String`      | Operation message |
+| `result`  | `ScheduleDto` | Schedule data     |
+
+#### `ScheduleDto`
+
+| Field         | Type       | Description                |
+| ------------- | ---------- | -------------------------- |
+| `id`          | `ID`       | Unique schedule identifier |
+| `customerId`  | `String`   | Associated customer ID     |
+| `doctorId`    | `String`   | Associated doctor ID       |
+| `objective`   | `String`   | Purpose of the schedule    |
+| `scheduledAt` | `DateTime` | Scheduled date and time    |
+| `createdAt`   | `DateTime` | Record creation timestamp  |
+| `updatedAt`   | `DateTime` | Record updated timestamp   |
 
 ---
 

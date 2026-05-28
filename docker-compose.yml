@@ -1,0 +1,95 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: rata-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: kaneki123
+      POSTGRES_DB: rata
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: rata-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
+    container_name: rata-auth-service
+    environment:
+      SERVICE_NAME: auth-service
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: rata
+      DB_USERNAME: postgres
+      DB_PASSWORD: kaneki123
+      DB_DRIVER: postgres
+      JWT_SECRET: rata-key
+      JWT_EXPIRED: 1d
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  schedule-service:
+    build:
+      context: .
+      dockerfile: schedule-service/Dockerfile
+    container_name: rata-schedule-service
+    environment:
+      SERVICE_NAME: schedule-service
+      PORT: 3002
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: rata
+      DB_USERNAME: postgres
+      DB_PASSWORD: kaneki123
+      DB_DRIVER: postgres
+      JWT_SECRET: rata-key
+      JWT_EXPIRED: 1h
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+      EMAIL_USER: rizkysyahroni200@gmail.com
+      EMAIL_PASSWORD: snbb oemn nxya uzne
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:

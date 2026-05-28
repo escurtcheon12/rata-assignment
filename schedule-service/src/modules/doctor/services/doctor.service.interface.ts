@@ -1,17 +1,11 @@
-import {
-  CustomerDto,
-  CustomerListDto,
-} from '../dtos/responses/doctor.response.dto';
+import { DoctorDto, DoctorListDto } from '../dtos/responses/doctor.response.dto';
 
 export interface IDoctorService {
-  createCustomer(data: { name: string; email: string }): Promise<CustomerDto>;
-  getCustomerById(id: string): Promise<CustomerDto>;
-  getCustomers(page: number, pageSize: number): Promise<CustomerListDto>;
-  updateCustomer(
-    id: string,
-    data: { name?: string; email?: string },
-  ): Promise<CustomerDto>;
-  deleteCustomer(id: string): Promise<CustomerDto>;
+  createDoctor(data: { name: string }): Promise<DoctorDto>;
+  getDoctorById(id: string): Promise<DoctorDto>;
+  getDoctors(page: number, pageSize: number): Promise<DoctorListDto>;
+  updateDoctor(id: string, data: { name?: string }): Promise<DoctorDto>;
+  deleteDoctor(id: string): Promise<DoctorDto>;
 }
 
 export const IDoctorService = Symbol('IDoctorService');

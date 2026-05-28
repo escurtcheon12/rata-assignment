@@ -1,34 +1,25 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsOptional, IsString, MinLength } from 'class-validator';
 
 @InputType()
-export class CreateCustomerDto {
+export class CreateDoctorDto {
   @Field()
   @IsString()
   @MinLength(1)
   name: string;
-
-  @Field()
-  @IsEmail()
-  email: string;
 }
 
 @InputType()
-export class UpdateCustomerDto {
+export class UpdateDoctorDto {
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
   @MinLength(1)
   name?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsEmail()
-  email?: string;
 }
 
 @InputType()
-export class CustomerPaginationDto {
+export class DoctorPaginationDto {
   @Field({ nullable: true })
   @IsOptional()
   @IsString()

@@ -3,16 +3,15 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { IDoctorService } from '../services/doctor.service.interface';
 import {
-  CustomerDto,
-  CustomerListDto,
-  CreateCustomerResponseDto,
-  UpdateCustomerResponseDto,
-  CustomerListResponseDto,
+  CreateDoctorResponseDto,
+  UpdateDoctorResponseDto,
+  DoctorListResponseDto,
+  DoctorResponseDto,
 } from '../dtos/responses/doctor.response.dto';
 import {
-  CreateCustomerDto,
-  UpdateCustomerDto,
-  CustomerPaginationDto,
+  CreateDoctorDto,
+  UpdateDoctorDto,
+  DoctorPaginationDto,
 } from '../dtos/requests/doctor.request.dto';
 
 @Resolver()
@@ -22,41 +21,35 @@ export class DoctorResolver {
     private readonly doctorService: IDoctorService,
   ) {}
 
-  @Mutation(() => CreateCustomerResponseDto)
-  async createCustomer(@Args('input') input: CreateCustomerDto) {
-    return this.doctorService.createCustomer({
-      name: input.name,
-      email: input.email,
-    });
+  @Mutation(() => CreateDoctorResponseDto)
+  async createDoctor(@Args('input') input: CreateDoctorDto) {
+    return this.doctorService.createDoctor({ name: input.name });
   }
 
-  @Mutation(() => UpdateCustomerResponseDto)
-  async updateCustomer(
+  @Mutation(() => UpdateDoctorResponseDto)
+  async updateDoctor(
     @Args('id') id: string,
-    @Args('input') input: UpdateCustomerDto,
+    @Args('input') input: UpdateDoctorDto,
   ) {
-    return this.doctorService.updateCustomer(id, {
-      name: input.name,
-      email: input.email,
-    });
+    return this.doctorService.updateDoctor(id, { name: input.name });
   }
 
-  @Mutation(() => CustomerDto)
-  async deleteCustomer(@Args('id') id: string) {
-    return this.doctorService.deleteCustomer(id);
+  @Mutation(() => DoctorResponseDto)
+  async deleteDoctor(@Args('id') id: string) {
+    return this.doctorService.deleteDoctor(id);
   }
 
-  @Query(() => CustomerListResponseDto)
-  async customers(@Args('pagination') pagination: CustomerPaginationDto) {
+  @Query(() => DoctorListResponseDto)
+  async doctors(@Args('pagination') pagination: DoctorPaginationDto) {
     const page = pagination.page ? parseInt(pagination.page, 10) : 1;
     const pageSize = pagination.pageSize
       ? parseInt(pagination.pageSize, 10)
       : 10;
-    return this.doctorService.getCustomers(page, pageSize);
+    return this.doctorService.getDoctors(page, pageSize);
   }
 
-  @Query(() => CustomerDto)
-  async customer(@Args('id') id: string) {
-    return this.doctorService.getCustomerById(id);
+  @Query(() => DoctorResponseDto)
+  async doctor(@Args('id') id: string) {
+    return this.doctorService.getDoctorById(id);
   }
 }

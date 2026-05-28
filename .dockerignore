@@ -1,0 +1,5 @@
+**/dist
+**/.env
+**/coverage
+**/.git
+**/README.md

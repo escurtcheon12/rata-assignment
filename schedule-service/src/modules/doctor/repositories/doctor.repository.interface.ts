@@ -1,18 +1,11 @@
-import { Customer } from '@prisma/client';
+import { Doctor } from '@prisma/client';
 
 export interface IDoctorRepository {
-  create(data: { name: string; email: string }): Promise<Customer>;
-  findById(id: string): Promise<Customer | null>;
-  findByEmail(email: string): Promise<Customer | null>;
-  findAll(
-    page: number,
-    pageSize: number,
-  ): Promise<{ customers: Customer[]; total: number }>;
-  update(
-    id: string,
-    data: { name?: string; email?: string },
-  ): Promise<Customer>;
-  delete(id: string): Promise<Customer>;
+  create(data: { name: string }): Promise<Doctor>;
+  findById(id: string): Promise<Doctor | null>;
+  findAll(page: number, pageSize: number): Promise<{ doctors: Doctor[]; total: number }>;
+  update(id: string, data: { name?: string }): Promise<Doctor>;
+  delete(id: string): Promise<Doctor>;
 }
 
 export const IDoctorRepository = Symbol('IDoctorRepository');

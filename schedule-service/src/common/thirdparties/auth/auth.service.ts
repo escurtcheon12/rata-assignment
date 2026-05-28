@@ -20,7 +20,6 @@ export class AuthService {
     let checkToken: any;
     try {
       checkToken = jwt.verify(token, secretkey);
-      console.log('check-token', checkToken);
     } catch (err) {
       throw new UnauthorizedException(
         'Unauthorized - ' + (err as Error).message,
@@ -38,7 +37,6 @@ export class AuthService {
         ? JSON.parse(dataAuthRedis)
         : dataAuthRedis;
 
-    console.log('dataAuthUser', dataAuthUser);
     if (!dataAuthUser || Object.keys(dataAuthUser).length === 0)
       throw new UnauthorizedException('Unauthorized - Token is expired');
 

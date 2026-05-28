@@ -2,15 +2,12 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { BaseResponseDto } from 'src/common/response';
 
 @ObjectType()
-export class CustomerDto {
+export class DoctorDto {
   @Field()
   id: string;
 
   @Field()
   name: string;
-
-  @Field()
-  email: string;
 
   @Field()
   createdAt: Date;
@@ -20,9 +17,9 @@ export class CustomerDto {
 }
 
 @ObjectType()
-export class CustomerListDto {
-  @Field(() => [CustomerDto])
-  data: CustomerDto[];
+export class DoctorListDto {
+  @Field(() => [DoctorDto])
+  data: DoctorDto[];
 
   @Field()
   totalRecords: number;
@@ -38,13 +35,13 @@ export class CustomerListDto {
 }
 
 @ObjectType()
-export class CreateCustomerResponseDto extends BaseResponseDto(CustomerDto) {}
+export class CreateDoctorResponseDto extends BaseResponseDto(DoctorDto) {}
 
 @ObjectType()
-export class UpdateCustomerResponseDto extends BaseResponseDto(CustomerDto) {}
+export class UpdateDoctorResponseDto extends BaseResponseDto(DoctorDto) {}
 
 @ObjectType()
-export class CustomerResponseDto extends BaseResponseDto(CustomerDto) {}
+export class DoctorResponseDto extends BaseResponseDto(DoctorDto) {}
 
 @ObjectType()
-export class CustomerListResponseDto extends BaseResponseDto(CustomerListDto) {}
+export class DoctorListResponseDto extends BaseResponseDto(DoctorListDto) {}
