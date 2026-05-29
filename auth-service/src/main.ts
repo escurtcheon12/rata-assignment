@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
-import { ResponseWrapperInterceptor } from './common/interceptors';
+import { ResponseWrapperInterceptor } from './common/interceptors/response-wrapper.interceptor';
 
 async function bootstrap() {
   //--- Setup Server ---//

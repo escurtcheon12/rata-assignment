@@ -48,3 +48,6 @@ export class CustomerResponseDto extends BaseResponseDto(CustomerDto) {}
 
 @ObjectType()
 export class CustomerListResponseDto extends BaseResponseDto(CustomerListDto) {}
+
+@ObjectType()
+export class DeleteCustomerResponseDto extends BaseResponseDto(CustomerDto) {}

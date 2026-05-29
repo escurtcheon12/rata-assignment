@@ -19,16 +19,30 @@ export class CustomerRepository implements ICustomerRepository {
     return this.dbConfig.customer.findUnique({ where: { email } });
   }
 
-  async findAll(page: number, pageSize: number): Promise<{ customers: Customer[]; total: number }> {
-    const skip = (page - 1) * pageSize;
-    const [customers, total] = await Promise.all([
-      this.dbConfig.customer.findMany({ skip, take: pageSize, orderBy: { createdAt: 'desc' } }),
-      this.dbConfig.customer.count(),
-    ]);
-    return { customers, total };
+  async findAll(
+    page: number,
+    pageSize: number,
+  ): Promise<{ customers: Customer[]; total: number }> {
+    try {
+      const offset = (page - 1) * pageSize;
+      const [customers, total] = await Promise.all([
+        this.dbConfig.customer.findMany({
+          skip: offset,
+          take: pageSize,
+          orderBy: { createdAt: 'desc' },
+        }),
+        this.dbConfig.customer.count(),
+      ]);
+      return { customers, total };
+    } catch (error) {
+      return { customers: [], total: 0 };
+    }
   }
 
-  async update(id: string, data: { name?: string; email?: string }): Promise<Customer> {
+  async update(
+    id: string,
+    data: { name?: string; email?: string },
+  ): Promise<Customer> {
     return this.dbConfig.customer.update({ where: { id }, data });
   }
 

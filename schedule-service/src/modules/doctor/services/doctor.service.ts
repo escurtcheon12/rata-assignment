@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { IDoctorRepository } from '../repositories/doctor.repository.interface';
 import { IDoctorService } from './doctor.service.interface';
 import {
@@ -24,6 +29,9 @@ export class DoctorService implements IDoctorService {
 
   async createDoctor(data: { name: string }): Promise<DoctorDto> {
     const doctor = await this.doctorRepository.create(data);
+    if (!doctor) {
+      throw new BadRequestException(`Failed create doctor`);
+    }
     return this.toDoctorDto(doctor);
   }
 
@@ -58,6 +66,9 @@ export class DoctorService implements IDoctorService {
       throw new NotFoundException(`Doctor with ID ${id} not found`);
     }
     const doctor = await this.doctorRepository.update(id, data);
+    if (!doctor) {
+      throw new BadRequestException(`Failed update doctor`);
+    }
     return this.toDoctorDto(doctor);
   }
 

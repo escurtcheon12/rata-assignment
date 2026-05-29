@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { ICustomerRepository } from '../repositories/customer.repository.interface';
 import { ICustomerService } from './customer.service.interface';
@@ -39,6 +40,9 @@ export class CustomerService implements ICustomerService {
       throw new ConflictException('Customer with this email already exists');
     }
     const customer = await this.customerRepository.create(data);
+    if (!customer) {
+      throw new BadRequestException(`Failed create customer`);
+    }
     return this.toCustomerDto(customer);
   }
 
@@ -84,6 +88,9 @@ export class CustomerService implements ICustomerService {
       }
     }
     const customer = await this.customerRepository.update(id, data);
+    if (!customer) {
+      throw new BadRequestException(`Failed update customer`);
+    }
     return this.toCustomerDto(customer);
   }
 

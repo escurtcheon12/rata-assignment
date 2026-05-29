@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   IScheduleRepository,
@@ -71,17 +72,17 @@ export class ScheduleService implements IScheduleService {
     }
 
     const schedule = await this.scheduleRepository.create(data);
+    if (!schedule) {
+      throw new BadRequestException(`Failed create schedule`);
+    }
 
-    await this.emailService.sendScheduleCreatedEmail(
-      customer.email,
-      customer.name,
-      {
-        id: schedule.id,
-        objective: schedule.objective,
-        doctorName: doctor.name,
-        scheduledAt: schedule.scheduledAt || new Date(),
-      },
-    );
+    await this.emailService.sendScheduleCreatedEmail({
+      email: customer.email,
+      name: customer.name,
+      objective: schedule.objective,
+      doctorName: doctor.name,
+      scheduledAt: schedule.scheduledAt || new Date(),
+    });
 
     return this.toScheduleDto(schedule);
   }
@@ -104,6 +105,7 @@ export class ScheduleService implements IScheduleService {
       pageSize,
       filter,
     );
+
     return {
       data: schedules.map((s) => this.toScheduleDto(s)),
       totalRecords: total,
@@ -122,23 +124,33 @@ export class ScheduleService implements IScheduleService {
     const customer = await this.dbConfig.customer.findUnique({
       where: { id: schedule.customerId! },
     });
+
+    if (!customer) {
+      throw new NotFoundException(
+        `Customer with ID ${schedule.customerId} not found`,
+      );
+    }
+
     const doctor = await this.dbConfig.doctor.findUnique({
       where: { id: schedule.doctorId! },
     });
 
+    if (!doctor) {
+      throw new NotFoundException(
+        `Doctor with ID ${schedule.doctorId} not found`,
+      );
+    }
+
     const deleted = await this.scheduleRepository.delete(id);
 
     if (customer && doctor) {
-      await this.emailService.sendScheduleDeletedEmail(
-        customer.email,
-        customer.name,
-        {
-          id: schedule.id,
-          objective: schedule.objective,
-          doctorName: doctor.name,
-          scheduledAt: schedule.scheduledAt || new Date(),
-        },
-      );
+      await this.emailService.sendScheduleDeletedEmail({
+        email: customer.email,
+        name: customer.name,
+        objective: schedule.objective,
+        doctorName: doctor.name,
+        scheduledAt: schedule.scheduledAt || new Date(),
+      });
     }
 
     return this.toScheduleDto(deleted);

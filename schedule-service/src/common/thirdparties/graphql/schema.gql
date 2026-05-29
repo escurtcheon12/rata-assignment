@@ -59,10 +59,20 @@ input CustomerPaginationDto {
   pageSize: String
 }
 
+type CustomerResponseDto {
+  message: String!
+  result: CustomerDto!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+type DeleteCustomerResponseDto {
+  message: String!
+  result: CustomerDto!
+}
 
 type DoctorDto {
   createdAt: DateTime!
@@ -98,7 +108,7 @@ type Mutation {
   createCustomer(input: CreateCustomerDto!): CreateCustomerResponseDto!
   createDoctor(input: CreateDoctorDto!): CreateDoctorResponseDto!
   createSchedule(input: CreateScheduleDto!): CreateScheduleResponseDto!
-  deleteCustomer(id: String!): CustomerDto!
+  deleteCustomer(id: String!): DeleteCustomerResponseDto!
   deleteDoctor(id: String!): DoctorResponseDto!
   deleteSchedule(id: String!): ScheduleResponseDto!
   updateCustomer(id: String!, input: UpdateCustomerDto!): UpdateCustomerResponseDto!
@@ -106,7 +116,7 @@ type Mutation {
 }
 
 type Query {
-  customer(id: String!): CustomerDto!
+  customer(id: String!): CustomerResponseDto!
   customers(pagination: CustomerPaginationDto!): CustomerListResponseDto!
   doctor(id: String!): DoctorResponseDto!
   doctors(pagination: DoctorPaginationDto!): DoctorListResponseDto!

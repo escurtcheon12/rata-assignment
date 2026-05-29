@@ -14,7 +14,7 @@ import { ResponseWrapperInterceptor } from './common/interceptors';
 import { CustomerModule } from './modules/customer/customer.module';
 import { DoctorModule } from './modules/doctor/doctor.module';
 import { ScheduleModule } from './modules/schedule/schedule.module';
-import { EmailModule } from './common/thirdparties/email';
+import { EmailModule } from './common/thirdparties/email/email.module';
 
 @Module({
   imports: [

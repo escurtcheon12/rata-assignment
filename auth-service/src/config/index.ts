@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 
-// Set the NODE_ENV to 'development' by default
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 const envFound = dotenv.config();
@@ -10,7 +9,6 @@ if (!envFound) {
 
 export default () => ({
   app: {
-    // env: process.env.NODE_ENV,
     name: process.env.SERVICE_NAME,
   },
   port: process.env.PORT || 8000,
@@ -20,7 +18,6 @@ export default () => ({
   cache: {
     host: process.env.REDIS_HOST || '127.0.0.1',
     port: Number(process.env.REDIS_PORT) || 6379,
-    // socket: {},
     password: process.env.REDIS_PASSWORD || '',
   },
   jwt: {

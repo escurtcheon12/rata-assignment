@@ -49,7 +49,7 @@ export class AuthService {
     await this.cacheManager.set(
       keyRedis,
       JSON.stringify(dataAuthUser),
-      1000 * 60 * 60,
+      1000 * 60 * 60 /* 1hr  */,
     );
 
     const dataUser = {

@@ -20,7 +20,6 @@ export class CacheConfig implements CacheOptionsFactory {
     this.logger.log(`📡 Connecting to Redis via Keyv at: ${host}:${port}`);
 
     return {
-      // cache-manager v6/v7 expects an array of stores
       stores: [new KeyvRedis(redisUrl)],
       ttl: 3600000,
     } as any;

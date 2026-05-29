@@ -3,11 +3,11 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { ICustomerService } from '../services/customer.service.interface';
 import {
-  CustomerDto,
-  CustomerListDto,
   CreateCustomerResponseDto,
   UpdateCustomerResponseDto,
   CustomerListResponseDto,
+  DeleteCustomerResponseDto,
+  CustomerResponseDto,
 } from '../dtos/responses/customer.response.dto';
 import {
   CreateCustomerDto,
@@ -41,7 +41,7 @@ export class CustomerResolver {
     });
   }
 
-  @Mutation(() => CustomerDto)
+  @Mutation(() => DeleteCustomerResponseDto)
   async deleteCustomer(@Args('id') id: string) {
     return this.customerService.deleteCustomer(id);
   }
@@ -55,8 +55,10 @@ export class CustomerResolver {
     return this.customerService.getCustomers(page, pageSize);
   }
 
-  @Query(() => CustomerDto)
+  @Query(() => CustomerResponseDto)
   async customer(@Args('id') id: string) {
-    return this.customerService.getCustomerById(id);
+    const result = await this.customerService.getCustomerById(id);
+    console.log('result==', result);
+    return result;
   }
 }

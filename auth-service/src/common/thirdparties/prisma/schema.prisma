@@ -6,44 +6,6 @@ datasource db {
   provider = "postgresql"
 }
 
-model Customer {
-  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name      String     @db.VarChar(100)
-  email     String     @unique @db.VarChar(150)
-  createdAt DateTime   @default(now()) @db.Timestamp()
-  updatedAt DateTime?  @updatedAt @db.Timestamp()
-
-  schedules Schedule[]
-
-  @@map("customer")
-}
-
-model Doctor {
-  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name      String    @db.VarChar(100)
-  createdAt DateTime  @default(now()) @db.Timestamp()
-  updatedAt DateTime? @updatedAt @db.Timestamp()
-
-  schedules Schedule[]
-
-  @@map("doctor")
-}
-
-model Schedule {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  objective   String    @db.VarChar(150)
-  customerId  String?   @db.Uuid
-  doctorId    String?   @db.Uuid
-  scheduledAt DateTime? @db.Timestamp()
-  createdAt   DateTime  @default(now()) @db.Timestamp()
-  updatedAt   DateTime? @updatedAt @db.Timestamp()
-
-  customer Customer? @relation(fields: [customerId], references: [id])
-  doctor   Doctor?   @relation(fields: [doctorId], references: [id])
-
-  @@map("schedule")
-}
-
 model User {
   id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email     String    @unique @db.VarChar(150)

@@ -1,4 +1,9 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { IAuthRepository } from '../repositories/auth.repository.interface';
 import {
   User,
@@ -38,41 +43,20 @@ export class AuthService implements IAuthService {
   }
 
   async register(email: string, password: string): Promise<RegisterDataDto> {
-    // Check if user exists
     const existingUser = await this.getUserByEmail(email);
     if (existingUser) {
       throw new UnauthorizedException('Email already registered');
     }
 
-    // Hash password
     const hashedPassword = bcrypt.SHA256(password).toString();
 
-    // Create user
     const user = await this.createUser({
       email,
       password: hashedPassword,
     });
-
-    // Generate JWT
-    // const secretkey = this.configService.get<string>('jwt.secret');
-    // if (!secretkey) {
-    //   throw new Error('JWT_SECRET is not configured');
-    // }
-    // const expiresIn = this.configService.get<string>('jwt.expiresIn') || '1d';
-    // const token = jwt.sign({ userId: user.id }, secretkey, { expiresIn });
-
-    // Store session in Redis
-    // const keyRedis = `auth-${user.id}`;
-    // await this.cacheManager.set(
-    //   keyRedis,
-    //   JSON.stringify({
-    //     id: user.id,
-    //     email: user.email,
-    //     password: user.password,
-    //     token_active: token,
-    //   }),
-    //   86400,
-    // );
+    if (!user) {
+      throw new BadRequestException(`Failed create user`);
+    }
 
     return {
       id: user.id,
@@ -82,24 +66,20 @@ export class AuthService implements IAuthService {
   }
 
   async login(email: string, password: string): Promise<AuthDataDto> {
-    // Find user
     const user = await this.getUserByEmail(email);
 
-    // Verify password
     const hashedPassword = bcrypt.SHA256(password).toString();
     if (!user || user.password !== hashedPassword) {
       throw new UnauthorizedException('Password is incorrect');
     }
 
-    // Generate JWT
     const secretkey = this.configService.get<string>('jwt.secret');
     if (!secretkey) {
       throw new Error('JWT_SECRET is not configured');
     }
     const expiresIn = this.configService.get<string>('jwt.expiresIn') || '1d';
     const token = jwt.sign({ userId: user.id }, secretkey, { expiresIn });
-
-    // Store session in Redis
+    token;
     const keyRedis = `auth-${user.id}`;
     await this.cacheManager.set(
       keyRedis,
@@ -109,7 +89,7 @@ export class AuthService implements IAuthService {
         password: user.password,
         token_active: token,
       }),
-      86400 * 1000,
+      1000 * 60 * 60 /* 1hr  */,
     );
 
     return {
@@ -128,13 +108,6 @@ export class AuthService implements IAuthService {
       throw new UnauthorizedException('JWT secret not configured');
     }
 
-    console.log('secretkey==', secretkey);
-
-    const gets = await this.cacheManager.get(
-      'auth-f4aa225a-3428-419b-bc81-731887fbc913',
-    );
-    console.log('olee', gets);
-
     let decoded: any;
     try {
       decoded = jwt.verify(token, secretkey);
@@ -147,7 +120,6 @@ export class AuthService implements IAuthService {
       throw new UnauthorizedException('Invalid token');
     }
 
-    // Check session in Redis
     const keyRedis = `auth-${userId}`;
     const dataAuthRedisStr: string | undefined =
       await this.cacheManager.get(keyRedis);
@@ -157,7 +129,6 @@ export class AuthService implements IAuthService {
       throw new UnauthorizedException('Token expired or session invalid');
     }
 
-    // Get user from database
     const user = await this.getUserById(userId);
     if (!user) {
       throw new UnauthorizedException('User not found');

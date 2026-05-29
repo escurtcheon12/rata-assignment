@@ -1,12 +1,24 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
+import moment from 'moment';
 
 export interface EmailPayload {
   to: string;
   subject: string;
   text?: string;
   html?: string;
+}
+
+export interface ScheduleDetail {
+  objective: string;
+  doctorName: string;
+  scheduledAt: Date;
+}
+
+export interface PayloadSchedule extends ScheduleDetail {
+  email: string;
+  name: string;
 }
 
 @Injectable()
@@ -24,7 +36,7 @@ export class EmailService {
     });
   }
 
-  async sendEmail(payload: EmailPayload): Promise<boolean> {
+  async sendEmail(payload: EmailPayload) {
     this.logger.log(`Sending email to ${payload.to}: ${payload.subject}`);
     try {
       await this.transporter.sendMail({
@@ -35,72 +47,49 @@ export class EmailService {
         html: payload.html,
       });
       this.logger.log(`Email sent successfully to ${payload.to}`);
-      return true;
     } catch (error) {
       this.logger.error(`Failed to send email: ${(error as Error).message}`);
-      return false;
     }
   }
 
-  async sendScheduleCreatedEmail(
-    customerEmail: string,
-    customerName: string,
-    scheduleDetails: {
-      id: string;
-      objective: string;
-      doctorName: string;
-      scheduledAt: Date;
-    },
-  ): Promise<boolean> {
-    const subject = 'Schedule Created - Appointment Confirmation';
+  async sendScheduleCreatedEmail(payload: PayloadSchedule) {
+    const subject = 'Jadwal Dikonfirmasi - Pemberitahuan Janji Temu Baru';
     const text = `
-Dear ${customerName},
+    Yth. ${payload.name},
 
-Your appointment has been successfully scheduled.
+    Janji temu Anda telah berhasil dibuat.
 
-Details:
-- Schedule ID: ${scheduleDetails.id}
-- Objective: ${scheduleDetails.objective}
-- Doctor: ${scheduleDetails.doctorName}
-- Date & Time: ${scheduleDetails.scheduledAt.toISOString()}
+    Detail Janji Temu:
+    - Tujuan Kunjungan : ${payload.objective}
+    - Dokter           : ${payload.doctorName}
+    - Tanggal & Waktu  : ${moment(payload.scheduledAt).locale('id').format('D MMMM YYYY HH:mm')}
 
-Thank you for your booking.
+    Terima kasih telah melakukan pemesanan. Mohon hadir tepat waktu.
 
-Best regards,
-Schedule Service
-    `.trim();
-
-    return this.sendEmail({ to: customerEmail, subject, text });
+    Hormat kami,
+    Layanan Jadwal
+  `.trim();
+    return this.sendEmail({ to: payload.email, subject, text });
   }
 
-  async sendScheduleDeletedEmail(
-    customerEmail: string,
-    customerName: string,
-    scheduleDetails: {
-      id: string;
-      objective: string;
-      doctorName: string;
-      scheduledAt: Date;
-    },
-  ): Promise<boolean> {
-    const subject = 'Schedule Cancelled - Appointment Cancellation';
+  async sendScheduleDeletedEmail(payload: PayloadSchedule) {
+    const subject = 'Jadwal Dibatalkan - Pemberitahuan Pembatalan Janji Temu';
     const text = `
-Dear ${customerName},
+    Yth. ${payload.name},
 
-Your appointment has been cancelled.
+    Kami informasikan bahwa janji temu Anda telah dibatalkan.
 
-Cancelled Details:
-- Schedule ID: ${scheduleDetails.id}
-- Objective: ${scheduleDetails.objective}
-- Doctor: ${scheduleDetails.doctorName}
-- Original Date & Time: ${scheduleDetails.scheduledAt.toISOString()}
+    Detail Pembatalan:
+    - Tujuan Kunjungan : ${payload.objective}
+    - Dokter           : ${payload.doctorName}
+    - Tanggal & Waktu  : ${moment(payload.scheduledAt).locale('id').format('D MMMM YYYY HH:mm')}
 
-If you need to reschedule, please create a new appointment.
+    Apabila Anda ingin membuat jadwal baru, silakan buat janji temu kembali melalui aplikasi kami.
 
-Best regards,
-Schedule Service
-    `.trim();
+    Hormat kami,
+    Layanan Jadwal
+  `.trim();
 
-    return this.sendEmail({ to: customerEmail, subject, text });
+    return this.sendEmail({ to: payload.email, subject, text });
   }
 }
