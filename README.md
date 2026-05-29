@@ -1,9 +1,168 @@
-# Rata
+# Rata Assignment Test
 
 Monorepo with two NestJS GraphQL services:
 
 - Auth Service: `http://localhost:3001/graphql`
 - Schedule Service: `http://localhost:3002/graphql`
+
+---
+
+## Arsitektur
+
+### Gambaran Umum
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                        Client                           │
+└────────────────┬────────────────────┬───────────────────┘
+                 │                    │
+                 ▼                    ▼
+   ┌─────────────────────┐  ┌─────────────────────────┐
+   │    Auth Service     │  │    Schedule Service     │
+   │    :3001/graphql    │  │    :3002/graphql        │
+   └──────────┬──────────┘  └────────────┬────────────┘
+              │                          │
+       ┌──────┴──────┐           ┌───────┴───────┐
+       │             │           │               │
+       ▼             ▼           ▼               ▼
+  ┌─────────┐  ┌─────────┐ ┌─────────┐    ┌─────────┐
+  │PostgreSQL│  │  Redis  │ │PostgreSQL│   │  Redis  │
+  └─────────┘  └─────────┘ └─────────┘    └─────────┘
+                                                │
+                                           ┌────┴────┐
+                                           │  SMTP   │
+                                           │ (Email) │
+                                           └─────────┘
+```
+
+---
+
+### Auth Service — Layer Architecture
+
+```
+ Client (GraphQL Request)
+         │
+         ▼
+ ┌───────────────┐
+ │   Resolver    │  ← Menerima query/mutation GraphQL
+ └───────┬───────┘
+         │
+         ▼
+ ┌───────────────┐
+ │    Service    │  ← Logika bisnis (login, register, validate token)
+ └───────┬───────┘
+         │
+         ├─────────────────────┐
+         ▼                     ▼
+ ┌───────────────┐     ┌───────────────┐
+ │  Repository   │     │     Redis     │
+ │  (Prisma)     │     │  (Token/Cache)│
+ └───────┬───────┘     └───────────────┘
+         │
+         ▼
+ ┌───────────────┐
+ │  PostgreSQL   │
+ └───────────────┘
+```
+
+---
+
+### Schedule Service — Layer Architecture
+
+```
+ Client (GraphQL Request)
+         │
+         ▼
+ ┌───────────────┐
+ │   Resolver    │  ← Menerima query/mutation GraphQL
+ └───────┬───────┘
+         │
+         ▼
+ ┌───────────────┐
+ │    Service    │  ← Logika bisnis & validasi
+ └───────┬───────┘
+         │
+         ├──────────────────────────────┐
+         ▼                              ▼
+ ┌───────────────┐              ┌───────────────┐
+ │  Repository   │              │  Email Service│
+ │  (Prisma)     │              │  (SMTP)       │
+ └───────┬───────┘              └───────────────┘
+         │
+         ├─────────────────────┐
+         ▼                     ▼
+ ┌───────────────┐     ┌───────────────┐
+ │  PostgreSQL   │     │     Redis     │
+ └───────────────┘     └───────────────┘
+```
+
+> Email dikirim otomatis oleh Service saat jadwal **dibuat** atau **dibatalkan**.
+
+---
+
+## Environment Variables
+
+Setiap service membutuhkan file `.env` masing-masing. Salin contoh di bawah dan sesuaikan nilainya.
+
+### Auth Service (`auth-service/.env`)
+
+```dotenv
+SERVICE_NAME='auth-service'
+
+PORT=3001
+
+# Database
+DB_HOST=''         # e.g. localhost
+DB_PORT=''         # e.g. 5432
+DB_NAME=''         # e.g. rata
+DB_USERNAME=''     # e.g. postgres
+DB_PASSWORD=''
+DB_DRIVER=''       # e.g. postgresql
+
+# JWT
+JWT_SECRET=''      # random string panjang, e.g. hasil openssl rand -base64 32
+JWT_EXPIRED=''     # e.g. 1h / 7d / 30d
+
+# Redis
+REDIS_HOST=''      # e.g. localhost
+REDIS_PORT=''      # e.g. 6379
+REDIS_PASSWORD=''
+# REDIS_DB=0
+```
+
+### Schedule Service (`schedule-service/.env`)
+
+```dotenv
+SERVICE_NAME='schedule-service'
+
+PORT=3002
+
+# Database
+DB_HOST=''         # e.g. localhost
+DB_PORT=''         # e.g. 5432
+DB_NAME=''         # e.g. rata
+DB_USERNAME=''     # e.g. postgres
+DB_PASSWORD=''
+DB_DRIVER=''       # e.g. postgresql
+
+# JWT (harus sama dengan auth-service)
+JWT_SECRET=''
+JWT_EXPIRED=''     # e.g. 1h / 7d / 30d
+
+# Redis
+REDIS_HOST=''      # e.g. localhost
+REDIS_PORT=''      # e.g. 6379
+REDIS_PASSWORD=''
+# REDIS_DB=0
+
+# Email (SMTP)
+EMAIL_USER=''      # e.g. noreply@yourdomain.com
+EMAIL_PASSWORD=''  # app password jika menggunakan Gmail
+```
+
+> **Catatan:** `JWT_SECRET` pada kedua service harus bernilai sama agar token yang dibuat oleh `auth-service` bisa divalidasi oleh `schedule-service`.
+
+---
 
 ## Getting Started
 
@@ -56,6 +215,8 @@ cd schedule-service
 npx prisma db push --accept-data-loss --config prisma.config.ts
 pnpm run start:dev
 ```
+
+---
 
 ## GraphQL API Reference
 
