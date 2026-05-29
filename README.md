@@ -7,9 +7,9 @@ Monorepo with two NestJS GraphQL services:
 
 ---
 
-## Arsitektur
+## Architecture
 
-### Gambaran Umum
+### Overview
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -44,12 +44,12 @@ Monorepo with two NestJS GraphQL services:
          │
          ▼
  ┌───────────────┐
- │   Resolver    │  ← Menerima query/mutation GraphQL
+ │   Resolver    │  ← Receives GraphQL query/mutation
  └───────┬───────┘
          │
          ▼
  ┌───────────────┐
- │    Service    │  ← Logika bisnis (login, register, validate token)
+ │    Service    │  ← Business logic (login, register, validate token)
  └───────┬───────┘
          │
          ├─────────────────────┐
@@ -74,12 +74,12 @@ Monorepo with two NestJS GraphQL services:
          │
          ▼
  ┌───────────────┐
- │   Resolver    │  ← Menerima query/mutation GraphQL
+ │   Resolver    │  ← Receives GraphQL query/mutation
  └───────┬───────┘
          │
          ▼
  ┌───────────────┐
- │    Service    │  ← Logika bisnis & validasi
+ │    Service    │  ← Business logic & validation
  └───────┬───────┘
          │
          ├──────────────────────────────┐
@@ -96,13 +96,13 @@ Monorepo with two NestJS GraphQL services:
  └───────────────┘     └───────────────┘
 ```
 
-> Email dikirim otomatis oleh Service saat jadwal **dibuat** atau **dibatalkan**.
+> Email is automatically sent by the Service when a schedule is **created** or **cancelled**.
 
 ---
 
 ## Environment Variables
 
-Setiap service membutuhkan file `.env` masing-masing. Salin contoh di bawah dan sesuaikan nilainya.
+Each service requires its own `.env` file. Copy the example below and fill in the values.
 
 ### Auth Service (`auth-service/.env`)
 
@@ -120,7 +120,7 @@ DB_PASSWORD=''
 DB_DRIVER=''       # e.g. postgresql
 
 # JWT
-JWT_SECRET=''      # random string panjang, e.g. hasil openssl rand -base64 32
+JWT_SECRET=''      # long random string, e.g. from openssl rand -base64 32
 JWT_EXPIRED=''     # e.g. 1h / 7d / 30d
 
 # Redis
@@ -145,7 +145,7 @@ DB_USERNAME=''     # e.g. postgres
 DB_PASSWORD=''
 DB_DRIVER=''       # e.g. postgresql
 
-# JWT (harus sama dengan auth-service)
+# JWT (must match auth-service)
 JWT_SECRET=''
 JWT_EXPIRED=''     # e.g. 1h / 7d / 30d
 
@@ -157,10 +157,10 @@ REDIS_PASSWORD=''
 
 # Email (SMTP)
 EMAIL_USER=''      # e.g. noreply@yourdomain.com
-EMAIL_PASSWORD=''  # app password jika menggunakan Gmail
+EMAIL_PASSWORD=''  # app password if using Gmail
 ```
 
-> **Catatan:** `JWT_SECRET` pada kedua service harus bernilai sama agar token yang dibuat oleh `auth-service` bisa divalidasi oleh `schedule-service`.
+> **Note:** `JWT_SECRET` must be the same value in both services so that tokens issued by `auth-service` can be validated by `schedule-service`.
 
 ---
 
@@ -692,7 +692,7 @@ query GetSchedule {
 
 1. Set method to **POST**
 2. Set URL to the port of the module you're testing
-3. Headers: `Content-Type: application/json`
+3. Headers: If schedule service add `Authorization Bearer xxxx`
 4. Body → **GraphQL** tab → paste the query above
 
 > **Note:** Use `mutation` for create/update/delete operations. Use `query` for read operations. Do not wrap operations in outer `{}`.
