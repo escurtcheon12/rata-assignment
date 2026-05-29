@@ -37,7 +37,7 @@ Monorepo with two NestJS GraphQL services:
 
 ---
 
-### Auth Service — Layer Architecture
+### Auth Service
 
 ```
  Client (GraphQL Request)
@@ -67,7 +67,7 @@ Monorepo with two NestJS GraphQL services:
 
 ---
 
-### Schedule Service — Layer Architecture
+### Schedule Service
 
 ```
  Client (GraphQL Request)
